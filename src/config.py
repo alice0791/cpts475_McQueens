@@ -1,4 +1,4 @@
-"""Settings shared by the whole project."""
+# settings shared by the whole project
 import os
 from pathlib import Path
 
