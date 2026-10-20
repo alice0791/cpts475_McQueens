@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 import pandas as pd
 
 from src import config
@@ -59,5 +60,34 @@ def clean(df, stats=None):
     df["is_night"] = (df["Sunrise_Sunset"] == "Night").astype("int8")
     df = df.drop(columns="Sunrise_Sunset")
 
+    # flag missing values before filling anything. precip missing usually means none
+    for col, flag in config.MISSING_FLAGS.items():
+        df[flag] = df[col].isna().astype("int8")
+    df["Precipitation(in)"] = df["Precipitation(in)"].fillna(0)
+
+    for col, (lo, hi) in config.CLIP_BOUNDS.items():
+        df[col] = df[col].clip(lo, hi)
+
+    df["weather_group"] = group_weather(df["Weather_Condition"])
+    df["Weather_Condition"] = df["Weather_Condition"].astype("string").fillna("Unknown").astype("category")
+    df["Wind_Direction"] = normalize_wind_direction(df["Wind_Direction"])
+
     stats["rows_out"] = len(df)
     return df
+
+
+# map the ~140 weather labels to a few groups using config.WEATHER_GROUPS
+def group_weather(s):
+    text = s.astype("string").str.lower()
+    conditions = [text.str.contains("|".join(words), regex=True).fillna(False)
+                  for words in config.WEATHER_GROUPS.values()]
+    groups = np.select(conditions, list(config.WEATHER_GROUPS), default="Other")
+    groups = np.where(text.isna(), "Unknown", groups)
+    return pd.Series(groups, index=s.index, dtype="category")
+
+
+# CALM -> Calm, North -> N, etc. missing or anything odd -> Unknown
+def normalize_wind_direction(s):
+    fixed = s.astype("string").replace(config.WIND_FIXES)
+    fixed = fixed.where(fixed.isin(config.WIND_DIRECTIONS), "Unknown")
+    return fixed.fillna("Unknown").astype("category")
