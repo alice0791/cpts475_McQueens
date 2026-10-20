@@ -72,6 +72,24 @@ CLIP_BOUNDS = {
     "Pressure(in)": (25, 32),
 }
 
+# weather label -> group, first match wins (so "Light Rain / Windy" is Rain)
+WEATHER_GROUPS = {
+    "Thunderstorm": ["thunder", "t-storm", "tstorm"],
+    "Snow/Ice": ["snow", "sleet", "ice", "freezing", "wintry", "hail"],
+    "Rain": ["rain", "drizzle", "shower"],
+    "Fog/Haze": ["fog", "haze", "mist", "smoke"],
+    "Windy/Dust": ["windy", "dust", "sand", "squall", "tornado", "funnel"],
+    "Cloudy": ["cloud", "overcast"],
+    "Clear": ["clear", "fair"],
+}
+
+# different spellings of the same wind direction
+WIND_FIXES = {"CALM": "Calm", "VAR": "Variable", "North": "N", "South": "S", "East": "E", "West": "W"}
+WIND_DIRECTIONS = [
+    "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+    "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "Calm", "Variable",
+]
+
 # year is left out for now until we check it in EDA
 FEATURE_GROUPS = {
     "weather": NUMERIC_WEATHER + list(MISSING_FLAGS.values())
