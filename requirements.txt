@@ -1,0 +1,13 @@
+pandas>=2.2
+numpy
+pyarrow
+scikit-learn
+xgboost
+tensorflow
+matplotlib
+seaborn
+jupyter
+nbformat
+pytest
+kaggle
+nbstripout
