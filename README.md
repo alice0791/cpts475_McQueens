@@ -57,7 +57,7 @@ kaggle datasets download sobhanmoosavi/us-accidents -p data/raw --unzip
 ```
 
 Or get the parquet files from the shared Google Drive and put them in `data/processed/`.
-The full run takes about a minute but needs around 13 GB of RAM, so on a smaller laptop the Drive files are easier.
+The full run takes about a minute.
 
 ## Running it
 
