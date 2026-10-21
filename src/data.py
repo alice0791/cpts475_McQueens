@@ -21,7 +21,7 @@ def load_raw_cached(path=config.RAW_CSV, cache=config.RAW_PARQUET):
     return df
 
 
-# cleans the raw data (see section 4 of the plan). no imputing or scaling here,
+# cleans the raw data. no imputing or scaling here,
 # that gets fit on train only. pass a dict as stats to get the row counts back.
 def clean(df, stats=None):
     if stats is None:

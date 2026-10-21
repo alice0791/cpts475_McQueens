@@ -228,5 +228,4 @@ data/processed/*
 *.parquet
 .ipynb_checkpoints/
 __pycache__/
-.superpowers/
 .DS_Store
