@@ -56,7 +56,6 @@ The CSV is about 3 GB, so it's not in the repo. Download it with the Kaggle CLI
 kaggle datasets download sobhanmoosavi/us-accidents -p data/raw --unzip
 ```
 
-Or get the parquet files from the shared Google Drive and put them in `data/processed/`.
 The full run takes about a minute.
 
 ## Running it
