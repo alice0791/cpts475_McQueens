@@ -57,6 +57,7 @@ kaggle datasets download sobhanmoosavi/us-accidents -p data/raw --unzip
 ```
 
 Or get the parquet files from the shared Google Drive and put them in `data/processed/`.
+The full run takes about a minute but needs around 13 GB of RAM, so on a smaller laptop the Drive files are easier.
 
 ## Running it
 
@@ -65,7 +66,7 @@ pytest
 python -m src.split
 ```
 
-`src.split` cleans the data and saves these to `data/processed/`:
+`src.split` cleans the data and saves these to `data/processed/` (`--nrows 100000` does a quick run into `data/processed/quick/` instead):
 
 - `clean.parquet`: all cleaned rows
 - `train.parquet`, `val.parquet`, `test.parquet`: 70/15/15 split, stratified on Severity
@@ -90,14 +91,14 @@ Use `src.evaluate.evaluate(model, X, y, name)` so everyone's results save the sa
 
 | | |
 |---|---|
-| Rows in raw CSV | TBD |
-| Bad `Start_Time` | TBD |
-| Missing `Sunrise_Sunset` | TBD |
-| Exact duplicates | TBD |
-| Same time and location | TBD |
-| Rows after cleaning | TBD |
-| Train / val / test | TBD |
-| Severity 1 / 2 / 3 / 4 | TBD |
+| Rows in raw CSV | 7,728,394 |
+| Bad `Start_Time` | 0 |
+| Missing `Sunrise_Sunset` | 23,246 |
+| Exact duplicates | 102,043 |
+| Same time and location | 435,649 |
+| Rows after cleaning | 7,167,456 |
+| Train / val / test | 5,017,219 / 1,075,118 / 1,075,119 |
+| Severity 1 / 2 / 3 / 4 | 64,187 / 5,638,573 / 1,289,451 / 175,245 (0.9% / 78.7% / 18.0% / 2.4%) |
 
 Dropped columns:
 - Leakage: `End_Time`, `End_Lat`, `End_Lng`, `Distance(mi)`, `Description`
