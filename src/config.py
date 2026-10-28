@@ -106,7 +106,7 @@ CATEGORICAL_FEATURES = ["weather_group", "Wind_Direction", "Source"]
 # settings to try for each model
 PARAM_GRIDS = {
     "lr": {"model__C": [0.01, 0.1, 1.0], "model__class_weight": [None, "balanced"]},
-    "nb": {"model__var_smoothing": [1e-9, 1e-6, 1e-3], "balanced": [False, True]},
+    "nb": {"model__alpha": [0.01, 0.1, 1.0], "balanced": [False, True]},
     "dt": {
         "model__max_depth": [5, 10, 15, 20, None],
         "model__min_samples_leaf": [1, 50, 500],
