@@ -110,3 +110,24 @@ Missing values:
 - Other weather numbers: left as NaN with a `*_missing` flag
 - `Weather_Condition`, `Wind_Direction`: "Unknown"
 - Rows missing `Start_Time` or `Sunrise_Sunset`: dropped
+
+## Results: Logistic Regression, Naive Bayes, Decision Tree
+
+```bash
+python -m src.train --model lr   # also nb, dt
+python -m src.train --model dt --extra year Source
+```
+
+Each model is tuned on the 1M sample using val macro-F1, then the best setting is refit on all of train. `--quick` does a 20k-row test run into `results/quick/`. Charts and the full comparison are in `notebooks/03_models.ipynb`.
+
+| Model | Best setting | Test macro-F1 | Test accuracy |
+|---|---|---|---|
+| Always guess 2 | | 0.220 | 0.787 |
+| Logistic Regression | C=0.01, balanced | 0.238 | 0.334 |
+| Naive Bayes (CategoricalNB) | alpha=0.01 | 0.328 | 0.754 |
+| Decision Tree | no depth limit, leaf 1 | 0.414 | 0.732 |
+| Decision Tree + year/Source | no depth limit, leaf 50 | 0.505 | 0.807 |
+
+- The decision tree is the best of the three, but 28% of test rows have the exact same features as a train row. On test rows without a twin it scores 0.343 (naive bayes 0.322).
+- Year and Source help a lot because severity labels depend on the data source, not because they say anything about the crash, so they're left out of the main models.
+- GaussianNB scored below the baseline (most features are 0/1), so naive bayes uses CategoricalNB with the weather numbers cut into 10 bins.
