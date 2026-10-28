@@ -24,7 +24,7 @@ def build_preprocessor(features):
     )
     categorical = make_pipeline(
         SimpleImputer(strategy="constant", fill_value="Unknown"),
-        OneHotEncoder(handle_unknown="ignore", sparse_output=False),  # naive bayes needs dense
+        OneHotEncoder(handle_unknown="ignore", sparse_output=False),
     )
     return ColumnTransformer([("num", numeric, nums), ("cat", categorical, cats)])
 

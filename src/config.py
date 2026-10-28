@@ -98,7 +98,7 @@ FEATURE_GROUPS = {
     "road": ROAD_COLS + ["road_feature_count"],
 }
 
-# features for lr / nb / dt (no year or Source, see notebook 02)
+# features for lr / nb / dt, no year or Source
 MODEL_FEATURES = FEATURE_GROUPS["weather"] + FEATURE_GROUPS["time"] + FEATURE_GROUPS["road"]
 # one-hot these, everything else is a number
 CATEGORICAL_FEATURES = ["weather_group", "Wind_Direction", "Source"]
