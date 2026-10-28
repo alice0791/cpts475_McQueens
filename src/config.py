@@ -98,6 +98,22 @@ FEATURE_GROUPS = {
     "road": ROAD_COLS + ["road_feature_count"],
 }
 
+# features for lr / nb / dt, no year or Source
+MODEL_FEATURES = FEATURE_GROUPS["weather"] + FEATURE_GROUPS["time"] + FEATURE_GROUPS["road"]
+# one-hot these, everything else is a number
+CATEGORICAL_FEATURES = ["weather_group", "Wind_Direction", "Source"]
+
+# settings to try for each model
+PARAM_GRIDS = {
+    "lr": {"model__C": [0.01, 0.1, 1.0], "model__class_weight": [None, "balanced"]},
+    "nb": {"model__alpha": [0.01, 0.1, 1.0], "balanced": [False, True]},
+    "dt": {
+        "model__max_depth": [5, 10, 15, 20, None],
+        "model__min_samples_leaf": [1, 50, 500],
+        "model__class_weight": [None, "balanced"],
+    },
+}
+
 # dtypes for reading the CSV (times are parsed later in clean())
 _STRING = [
     "ID", "Start_Time", "End_Time", "Description", "Street", "City", "County",
