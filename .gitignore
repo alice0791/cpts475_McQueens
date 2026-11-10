@@ -230,3 +230,7 @@ data/processed/*
 __pycache__/
 .DS_Store
 results/quick/
+
+# Neural network trained artifacts
+results/neural_networks/**/*.keras
+results/neural_networks/**/*.joblib
