@@ -131,3 +131,33 @@ Each model is tuned on the 1M sample using val macro-F1, then the best setting i
 - The decision tree is the best of the three, but 28% of test rows have the exact same features as a train row. On test rows without a twin it scores 0.343 (naive bayes 0.322).
 - Year and Source help a lot because severity labels depend on the data source, not because they say anything about the crash, so they're left out of the main models.
 - GaussianNB scored below the baseline (most features are 0/1), so naive bayes uses CategoricalNB with the weather numbers cut into 10 bins.
+
+## Results: K-Nearest Neighbors, Random Forest, XGBoost
+
+```bash
+python -m src.train --model knn --quick --quick-rows 100000
+python -m src.train --model rf --refit-sample
+python -m src.train --model xgb
+python -m src.train --model rf --feature-set weather --refit-sample
+python -m src.train --model rf --feature-set time --refit-sample
+python -m src.train --model rf --feature-set road --refit-sample
+```
+
+Random Forest and XGBoost are tuned on the 1M sample. The combined and feature-set Random Forest runs reported here use `--refit-sample` to refit on that 1M-row sample and score the full validation/test splits; results use the `rf_sampled` prefix. XGBoost is refit on all of train.
+
+KNN uses `--quick --quick-rows 100000`, which runs on 100k rows from each split and saves results under `results/quick/`. This keeps KNN's expensive prediction work manageable.
+
+| Model | Fit/evaluation scope | Best setting | Test macro-F1 | Test accuracy |
+|---|---|---|---:|---:|
+| KNN | 100K train, validation, and test rows | 5 neighbors, distance weights, balanced | 0.300 | 0.728 |
+| Random Forest | 1M train rows; full validation/test | 300 trees, unlimited depth, leaf 1, balanced | 0.394 | 0.735 |
+| XGBoost | Full 5.02M train rows; full validation/test | 300 trees, depth 9, learning rate 0.1, balanced | 0.318 | 0.501 |
+
+These scores use different data scopes: KNN's validation and test scores are from 100K-row subsets, while Random Forest and XGBoost were evaluated on the full splits.
+
+## Observations: KNN, Random Forest, and XGBoost
+
+- Random Forest has the highest test macro-F1 (0.394), followed by XGBoost (0.318) and KNN (0.300). The comparison is not fully controlled because KNN used 100K rows, Random Forest used 1M training rows, and XGBoost used the full training set.
+- On per-severity test F1, Random Forest outperforms KNN for Severities 1, 3, and 4, while their Severity 2 scores are similar. XGBoost is similar to Random Forest for Severities 3 and 4, but lower for Severities 1 and 2.
+- In the Random Forest feature-set experiment, weather-only features achieved test macro-F1 0.355. Time-only and road-only features scored 0.220 and 0.222, close to the always-guess-2 baseline (0.220). The combined feature set performed best at 0.394.
+- With the RF settings held fixed and only class weighting changed, test macro-F1 rose from 0.324 to 0.394, while accuracy fell from 0.788 to 0.735. Per-class F1 increased for Severities 1, 3, and 4 (0.099 to 0.190, 0.217 to 0.433, and 0.102 to 0.119); Severity 2 F1 decreased from 0.879 to 0.834.

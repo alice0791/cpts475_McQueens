@@ -16,7 +16,7 @@ def xy(df):
     return df[config.MODEL_FEATURES], df[config.TARGET]
 
 
-@pytest.mark.parametrize("kind", ["lr", "nb", "dt"])
+@pytest.mark.parametrize("kind", ["lr", "nb", "dt", "knn", "rf", "xgb"])
 def test_each_kind_fits_and_predicts(featured, kind):
     X, y = xy(featured)
     pipe = fit_model(make_model(kind, config.MODEL_FEATURES), X, y)
