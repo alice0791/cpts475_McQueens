@@ -37,13 +37,27 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="tune a model on val, then score the best one on val and test")
     parser.add_argument("--model", required=True, choices=list(config.PARAM_GRIDS))
     parser.add_argument("--extra", nargs="*", default=[], help="extra feature columns, like year Source")
-    parser.add_argument("--quick", action="store_true", help=f"only use {QUICK_ROWS:,} rows, save to results/quick/")
+    parser.add_argument("--feature-set", choices=list(config.FEATURE_SETS), default="combined",
+                        help="experiment with one feature group or the combined feature set")
+    parser.add_argument("--quick", action="store_true", help="use a subset of each split and save to results/quick/")
+    parser.add_argument("--quick-rows", type=int, default=QUICK_ROWS,
+                        help="rows per split for --quick (default: %(default)s)")
+    parser.add_argument("--refit-sample", action="store_true",
+                        help="refit the best model on the 1M training sample and score full val/test")
     args = parser.parse_args(argv)
+    if args.quick_rows < 1:
+        parser.error("--quick-rows must be a positive integer")
+    if args.quick and args.refit_sample:
+        parser.error("--quick cannot be combined with --refit-sample")
 
-    features = config.MODEL_FEATURES + args.extra
+    features = config.FEATURE_SETS[args.feature_set] + args.extra
     tag = args.model
+    if args.feature_set != "combined":
+        tag += f"_only_{args.feature_set}"
     if args.extra:
         tag += "_plus_" + "_".join(e.lower() for e in args.extra)
+    if args.refit_sample:
+        tag += "_sampled"
 
     # paths read here so they follow config at run time
     data = config.PROCESSED_DIR
@@ -51,9 +65,14 @@ def main(argv=None):
     val = pd.read_parquet(data / config.VAL_PARQUET.name)
     test = pd.read_parquet(data / config.TEST_PARQUET.name)
     if args.quick:
-        sample, val, test = sample.head(QUICK_ROWS), val.head(QUICK_ROWS), test.head(QUICK_ROWS)
+        sample = sample.head(args.quick_rows)
+        val = val.head(args.quick_rows)
+        test = test.head(args.quick_rows)
         train = sample
         out_dir = config.RESULTS_DIR / "quick"
+    elif args.refit_sample:
+        train = sample
+        out_dir = config.RESULTS_DIR
     else:
         train = pd.read_parquet(data / config.TRAIN_PARQUET.name)
         out_dir = config.RESULTS_DIR

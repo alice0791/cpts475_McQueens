@@ -98,6 +98,14 @@ FEATURE_GROUPS = {
     "road": ROAD_COLS + ["road_feature_count"],
 }
 
+# for separate feature testing in random forest 
+FEATURE_SETS = {
+    "weather": FEATURE_GROUPS["weather"],
+    "time": FEATURE_GROUPS["time"],
+    "road": FEATURE_GROUPS["road"],
+    "combined": FEATURE_GROUPS["weather"] + FEATURE_GROUPS["time"] + FEATURE_GROUPS["road"],
+}
+
 # features for lr / nb / dt, no year or Source
 MODEL_FEATURES = FEATURE_GROUPS["weather"] + FEATURE_GROUPS["time"] + FEATURE_GROUPS["road"]
 # one-hot these, everything else is a number
@@ -111,6 +119,23 @@ PARAM_GRIDS = {
         "model__max_depth": [5, 10, 15, 20, None],
         "model__min_samples_leaf": [1, 50, 500],
         "model__class_weight": [None, "balanced"],
+    },    
+    "knn": {
+        "model__n_neighbors": [5, 15, 31, 51],
+        "model__weights": ["uniform", "distance"],
+        "balanced": [False, True],  # for class-imbalance experiment
+    },
+    "rf": {
+        "model__n_estimators": [100, 300],
+        "model__max_depth": [10, 20, None],
+        "model__min_samples_leaf": [1, 10, 50],
+        "balanced": [False, True],
+    },
+    "xgb": {
+        "model__n_estimators": [100, 300],
+        "model__max_depth": [3, 6, 9],
+        "model__learning_rate": [0.01, 0.1],
+        "balanced": [False, True],
     },
 }
 

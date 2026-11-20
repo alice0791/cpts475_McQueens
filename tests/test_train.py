@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import pytest
 
@@ -53,6 +54,40 @@ def test_quick_run_writes_to_quick_folder(fake_project):
     assert [p.name for p in fake_project.iterdir()] == ["quick"]
 
 
+def test_quick_rows_limits_each_evaluation_split(fake_project):
+    main(["--model", "dt", "--quick", "--quick-rows", "20"])
+    with open(fake_project / "quick" / "dt_test.json") as f:
+        result = json.load(f)
+    assert sum(c["support"] for c in result["per_class"].values()) == 20
+
+
+def test_refit_sample_uses_sample_and_scores_full_splits(fake_project, splits, monkeypatch):
+    _, _, test = splits
+    import src.train as train_module
+
+    sample = pd.read_parquet(config.PROCESSED_DIR / config.TRAIN_SAMPLE_PARQUET.name)
+    fit_sizes = []
+    original_fit_model = train_module.fit_model
+
+    def track_fit_size(pipe, X, y, balanced=False):
+        fit_sizes.append(len(X))
+        return original_fit_model(pipe, X, y, balanced=balanced)
+
+    monkeypatch.setattr(train_module, "fit_model", track_fit_size)
+    main(["--model", "dt", "--refit-sample"])
+
+    assert fit_sizes and set(fit_sizes) == {len(sample)}
+    with open(fake_project / "dt_sampled_test.json") as f:
+        result = json.load(f)
+    assert sum(c["support"] for c in result["per_class"].values()) == len(test)
+    assert (fake_project / "dt_sampled_val.json").exists()
+
+
 def test_extra_features_change_tag(fake_project):
     main(["--model", "dt", "--quick", "--extra", "year"])
     assert (fake_project / "quick" / "dt_plus_year_test.json").exists()
+
+
+def test_feature_set_changes_tag(fake_project):
+    main(["--model", "knn", "--quick", "--feature-set", "weather"])
+    assert (fake_project / "quick" / "knn_only_weather_test.json").exists()
