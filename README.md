@@ -149,7 +149,7 @@ KNN uses `--quick --quick-rows 100000`, which runs on 100k rows from each split 
 
 | Model | Fit/evaluation scope | Best setting | Test macro-F1 | Test accuracy |
 |---|---|---|---:|---:|
-| KNN | 100K train, validation, and test rows | 5 neighbors, distance weights, balanced | 0.300 | 0.728 |
+| KNN | 100K train, validation, and test rows | 5 neighbors, distance weights | 0.300 | 0.728 |
 | Random Forest | 1M train rows; full validation/test | 300 trees, unlimited depth, leaf 1, balanced | 0.394 | 0.735 |
 | XGBoost | Full 5.02M train rows; full validation/test | 300 trees, depth 9, learning rate 0.1, balanced | 0.318 | 0.501 |
 
